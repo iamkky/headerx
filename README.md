@@ -24,14 +24,23 @@ use `\\HEADERX(<header filename>,<header tag>)` to indicate the staring of the h
 
 and `\\ENDX` to end the header
 
+Header file will be extracted to `<header filename>`, and will be protect by define tag `<header tag>` in the form of:
+
+```C
+#ifndef <header tag>
+#define <header tag>
+
+	Header body
+	
+#endif
+```
+
 ## Example of mixed header + c code file
 
 ```C
-//%%HEADERX(../awtk/HComponent, _HTE_HCOMPONENT_H_)
+//%%HEADERX(../awtk/HComponent.h, _AWTK_HCOMPONENT_H_)
 #include <abd/new.h>
 #include <helium/He.h>
-
-//#define HCOMPONENT	struct HComponent_struct component
 
 Class(HComponent) {
 	void		(*add)(HComponent, HComponent);
@@ -98,3 +107,10 @@ He hcomponentRender(HComponent self)
 
 
 ```
+
+## Notes
+
+this file is part of AWTK project, and is here just as an example.
+
+`Class`, `Constructor`, `Destructor`, `CInit` and `CFree` are defined in abd/new.h
+

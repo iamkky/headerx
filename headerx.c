@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LINE_BUFFER_SIZE	1024
+
 static int opt_verbose = 0;
 
 void usage(char **argv)
@@ -81,6 +83,8 @@ int  c;
 		fprintf(stderr,"Error HEADERLINE: expect ')', found %c\n", *(src-1));
 		return -1;
 	}
+
+	return 0;
 }
 
 FILE *start_new_header(char *header_line, char **h_filename, char **h_tag)
@@ -92,7 +96,10 @@ FILE *hout;
 
 	if(header_line==NULL) return NULL;
 
-	parse_header_line(header_line, h_filename, h_tag);
+	if(parse_header_line(header_line, h_filename, h_tag)){
+		fprintf(stderr,"Error parsing header line\n");
+		return NULL;
+	}
 
 	if(*h_filename==NULL || *h_tag==NULL) return NULL;
 
@@ -106,26 +113,10 @@ void print_line_directive(FILE *fp, int line, char *filename)
 	fprintf(fp,"#line %d \"%s\"\n", line, filename);
 }
 
-void trim(char *line)
-{
-int l;
-
-	if(line==NULL) return;
-	
-	l = strlen(line);
-	while(l-->0){
-		if(line[l]=='\n' || line[l]=='\r') {
-			line[l] = 0;
-		}else{
-			return;
-		}
-	}
-}
-
 int process(char *filename)
 {
 FILE *fp, *fout_h;
-char lbuffer[1024], *c_filename, *h_filename, *h_tag;
+char lbuffer[LINE_BUFFER_SIZE], *c_filename, *h_filename, *h_tag;
 int  state = 0, lines = 0;
 
 	if((fp=fopen(filename,"r"))==NULL){
@@ -133,7 +124,7 @@ int  state = 0, lines = 0;
 		return -1;
 	}	
 
-	while(fgets(lbuffer, 1024, fp)){
+	while(fgets(lbuffer, LINE_BUFFER_SIZE, fp)){
 		lines++;
 
 		switch(state){
